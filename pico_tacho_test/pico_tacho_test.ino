@@ -1,5 +1,5 @@
 const byte ledPin = 25;
-const byte interruptPin = 2;
+const byte interruptPin = 20;
 volatile byte state = LOW;
 
 float timeee = 0;
@@ -21,9 +21,8 @@ void loop(){
   counter = 0;
   prev_timeee = timeee;
   attachInterrupt(digitalPinToInterrupt(interruptPin), tacho, RISING);
-  delay(1000);
-}
+  delay(2000);}
 
 void tacho() {
-  counter += 0.5;
+  counter += 1;
 }
