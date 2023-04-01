@@ -24,5 +24,5 @@ void loop(){
   delay(2000);}
 
 void tacho() {
-  counter += 1;
+  counter += 1; 
 }

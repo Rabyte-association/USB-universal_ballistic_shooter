@@ -1,4 +1,7 @@
 #include <Servo.h>
+#include <PID_v1.h>
+
+#define MAX_RPM 14400
 
 const byte ledPin = 25;
 
@@ -17,21 +20,27 @@ float counter0 = 0;
 float counter1 = 0;
 float counter2 = 0;
 
-int actual_speed0;
-int actual_speed1;
-int actual_speed2;
+double actual_speed0;
+double actual_speed1;
+double actual_speed2;
 
-int desired_speed0 = 0;
-int desired_speed1 = 0;
-int desired_speed2 = 0;
+double setpiont_speed0 = 0;
+double setpiont_speed1 = 0;
+double setpiont_speed2 = 0;
 
-int written_speed0 = 0;
-int written_speed1 = 0;
-int written_speed2 = 0;
+double written_speed0 = 0;
+double written_speed1 = 0;
+double written_speed2 = 0;
 
 Servo motor0;
 Servo motor1;
 Servo motor2;
+
+double Kp=2, Ki=5, Kd=1;
+PID motor0_PID(&actual_speed0, &written_speed0, &setpiont_speed0, Kp, Ki, Kd, DIRECT);
+PID motor1_PID(&actual_speed1, &written_speed1, &setpiont_speed1, Kp, Ki, Kd, DIRECT);
+PID motor2_PID(&actual_speed2, &written_speed2, &setpiont_speed2, Kp, Ki, Kd, DIRECT);
+bool use_PID = true;
 
 void tacho0() {
   counter0 += 1;
@@ -46,7 +55,8 @@ void tacho2() {
 void setup() {
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
-
+  digitalWrite(ledPin, HIGH);
+  
   pinMode(motor0_interruptPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(motor0_interruptPin), tacho0, RISING);
   pinMode(motor1_interruptPin, INPUT_PULLUP);
@@ -57,6 +67,10 @@ void setup() {
   motor0.attach(motor0_pin);
   motor1.attach(motor1_pin);
   motor2.attach(motor2_pin);
+
+  motor0_PID.SetMode(AUTOMATIC);
+  motor1_PID.SetMode(AUTOMATIC);
+  motor2_PID.SetMode(AUTOMATIC);
 }
 
 void loop() {
@@ -68,25 +82,31 @@ void loop() {
       written_speed2 = 0;
     }
     if (data == 'f') {
-      desired_speed0 = 180;
-      desired_speed1 = 180;
-      desired_speed2 = 180;
+      setpiont_speed0 = 180;
+      setpiont_speed1 = 180;
+      setpiont_speed2 = 180;
     }
     if (data == 'u') {
       int tmp = Serial.parseInt();
-      desired_speed0 = tmp;
-      desired_speed1 = tmp;
-      desired_speed2 = tmp;
+      setpiont_speed0 = tmp;
+      setpiont_speed1 = tmp;
+      setpiont_speed2 = tmp;
       tmp = 0;
     }
     if (data == 'a') {
-      desired_speed0 = Serial.parseInt();
+      setpiont_speed0 = Serial.parseInt();
     }
     if (data == 'b') {
-      desired_speed1 = Serial.parseInt();
+      setpiont_speed1 = Serial.parseInt();
     }
     if (data == 'c') {
-      desired_speed0 = Serial.parseInt();
+      setpiont_speed0 = Serial.parseInt();
+    }
+    if (data == 'p') {
+      use_PID = true;
+    }
+    if (data == 'q') {
+      use_PID = false;
     }
   }
   current_time = millis();
@@ -98,20 +118,22 @@ void loop() {
   counter1 = 0;
   counter2 = 0;
   prev_time = current_time;
-  Serial.print(actual_speed0);
-  Serial.print(", ");
-  Serial.print(actual_speed1);
-  Serial.print(", ");
-  Serial.println(actual_speed2);
-
-  Serial.print(desired_speed0);
-  Serial.print(", ");
-  Serial.print(desired_speed1);
-  Serial.print(", ");
-  Serial.println(desired_speed2);
-
-  motor0.write(desired_speed0);
-  motor1.write(desired_speed1);
-  motor2.write(desired_speed2);
+  
+  print_debug();
+  
+  if(use_PID){
+    motor0_PID.Compute();
+    motor1_PID.Compute();
+    motor2_PID.Compute();
+  }
+  else{
+    written_speed0 = setpiont_speed0;
+    written_speed1 = setpiont_speed1;
+    written_speed2 = setpiont_speed2;
+  }
+  motor0_writeRPM(written_speed0);
+  motor1_writeRPM(written_speed1);
+  motor2_writeRPM(written_speed2);
+  
   delay(1);
 }
