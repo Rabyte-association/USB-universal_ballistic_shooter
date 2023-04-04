@@ -1,3 +1,8 @@
+// software for controling the universal balistic shooter
+// using standard esc, hall sensors as tachometers and pid controller
+// runs on rpi pico, using the arduino core by Earle F. Philhower is recomended
+// by Team Rabyte 2023
+
 #include <Servo.h>
 #include <PID_v1.h>
 
@@ -104,9 +109,11 @@ void loop() {
     }
     if (data == 'p') {
       use_PID = true;
+      Serial.println("PID enabled");
     }
     if (data == 'q') {
       use_PID = false;
+      Serial.println("PID disabled");
     }
   }
   current_time = millis();

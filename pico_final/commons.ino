@@ -13,19 +13,19 @@ void print_debug(){
 }
 
 void motor0_writeRPM(double rpm){
-  int out_rpm = map(rpm, 0, MAX_RPM, 0, 180); 
-  if(out_rpm > 180) out_rpm = 180;
-  motor0.write(out_rpm);
+  int out_deg = map(rpm, 0, MAX_RPM, 0, 180); 
+  if(out_deg > 180) out_deg = 180;
+  motor0.write(out_deg);
 }
 
 void motor1_writeRPM(double rpm){
-  int out_rpm = map(rpm, 0, MAX_RPM, 0, 180); 
-  if(out_rpm > 180) out_rpm = 180;
-  motor1.write(out_rpm);
+  int out_deg = map(rpm, 0, MAX_RPM, 0, 180); 
+  if(out_deg > 180) out_deg = 180;
+  motor1.write(out_deg);
 }
 
 void motor2_writeRPM(double rpm){
-  int out_rpm = map(rpm, 0, MAX_RPM, 0, 180); 
-  if(out_rpm > 180) out_rpm = 180;
-  motor2.write(out_rpm);
+  int out_deg = map(rpm, 0, MAX_RPM, 0, 180); 
+  if(out_deg > 180) out_deg = 180;
+  motor2.write(out_deg);
 }
