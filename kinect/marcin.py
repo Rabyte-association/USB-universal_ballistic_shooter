@@ -20,7 +20,7 @@ while True:
     frame = get_video()
     hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    # orange
+    # orangees
 
     depth = get_depth()
     wynik = 0.126*np.tan(depth[240][320]/2842.5+1.1863)
