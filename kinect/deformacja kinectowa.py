@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 MIN_MATCH_COUNT = 10
-img1 = cv.imread('vid.png', cv.IMREAD_GRAYSCALE)          # queryImage
-img2 = cv.imread('depth.png', cv.IMREAD_GRAYSCALE) # trainImage
+img1 = cv.imread('./pics/vid.png', cv.IMREAD_GRAYSCALE)          # queryImage
+img2 = cv.imread('./pics/depth.png', cv.IMREAD_GRAYSCALE) # trainImage
 # Initiate SIFT detector
 sift = cv.SIFT_create()
 # find the keypoints and descriptors with SIFT
