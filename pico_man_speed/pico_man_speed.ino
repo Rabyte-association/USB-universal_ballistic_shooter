@@ -3,6 +3,11 @@ int speed1 = 0;
 int speed2 = 0;
 int speed3 = 0;
 int speed4 = 0;
+int closedtop = 125;
+int openedtop=100;
+int closedbottom=160;
+int openedbottom=100;
+
 
 int tmp = 0;
 bool stoper = false;
@@ -10,14 +15,19 @@ Servo top;
 Servo left;
 Servo right;
 Servo fan;
+Servo feedtop;
+Servo feedbot;
 // The setup routine runs once when you press reset.
 void setup() {
   Serial.begin(115200);
   top.attach(17);
   left.attach(19);
   right.attach(21);
-  fan.attach(0);
-
+  fan.attach(1);
+  feedbot.attach(3);
+  feedtop.attach(2);
+  feedtop.write(125);
+  feedbot.write(180);
 }
 
 
@@ -43,19 +53,38 @@ if (Serial.available() > 1) {
       speed3=tmp;
       tmp=0;
     }
-    if (data == 'a') {
+    else if (data == 'a') {
       speed1 = Serial.parseInt();
     }
-    if (data == 'b') {
+    else if (data == 'b') {
       speed2 = Serial.parseInt();
     }
-    if (data == 'c') {
+    else if (data == 'c') {
       speed3 = Serial.parseInt();
     }
-    if (data == 'w') {
+    else if (data == 'w') {
       speed4 = Serial.parseInt();
     }
-    
+    else if (data == 't') {
+      feedtop.write(openedtop);
+      delay(200);
+      feedtop.write(closedtop);
+    }
+    else if(data=='y'){
+      feedbot.write(openedbottom);
+      delay(250);
+      feedbot.write(closedbottom);
+    }
+    else if(data=='l'){
+    feedtop.write(openedtop);
+    feedbot.write(openedbottom);
+    delay(500);
+    feedtop.write(closedtop);
+    feedbot.write(closedbottom);
+    Serial.println("tu");
+
+    }
+
     Serial.println(speed1);
     Serial.println(speed2);
     Serial.println(speed3);

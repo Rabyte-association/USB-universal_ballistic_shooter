@@ -6,7 +6,7 @@ import numpy as np
 
 #cap = cv2.VideoCapture(0)
 
-#cv2.namedWindow('Depth')
+cv2.namedWindow('Depth')
 #cv2.namedWindow('Video')
 
 def get_depth():
@@ -72,40 +72,11 @@ while True:
                           minimum = depth[m][n]
                           index = (m,n)
     print(str(minimum) + " : " + str(index))
-    cv2.circle(depth, center, br, (0, 0, 255), 1)
     
     canvas = canvas.astype(np.uint8)
-
-
-
-    imgA = canvas
-    imgB = depth
-    imgB = cv2.applyColorMap(imgB, cv2.COLORMAP_JET)
-    print('sraka')
-    cv2.imshow('imgA',imgA)
-    cv2.imshow('imgB',imgB)
-    print(np.shape(imgA))
-    print(np.shape(imgB))
-
-    #pre-multiplication
-    print('kaka')
-    a_channel_A = np.ones(imgA.shape, dtype=np.float64)/2.0
-    print('CaO')
-    a_channel_B = np.ones(imgB.shape, dtype=np.float64)/2.0
-    print('BaO')
-    imageA = imgA*a_channel_A
-    imageB = imgB*a_channel_B
-    print('sus')
-
-    output = (imgA * a_channel_A) + (imgB * (1-a_channel_B))
-    print('SiO2')
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-
-    #cv2.imshow('Depth', depth)
-    #cv2.imshow("Frame", canvas) # video + circle
-    cv2.imshow('OBA', output)
-    #cv2.imshow("SAS", depth)
+    
+    cv2.imshow('Depth', depth)
+    cv2.imshow("Frame", canvas) # video + circle
     print(center)
     key = cv2.waitKey(1)
     if key == 27:

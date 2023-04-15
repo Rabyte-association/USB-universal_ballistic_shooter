@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 MIN_MATCH_COUNT = 10
-img1 = cv.imread('box_back.jpg', cv.IMREAD_GRAYSCALE)          # queryImage
-img2 = cv.imread('box.jpg', cv.IMREAD_GRAYSCALE) # trainImage
+img1 = cv.imread('./pics/vid.png', cv.IMREAD_GRAYSCALE)          # queryImage
+img2 = cv.imread('./pics/depth.png', cv.IMREAD_GRAYSCALE) # trainImage
 # Initiate SIFT detector
 sift = cv.SIFT_create()
 # find the keypoints and descriptors with SIFT
@@ -42,13 +42,6 @@ draw_params = dict(matchColor = (0,255,0), # draw matches in green color
                    flags = 2)
 img3 = cv.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
 c_img1 = img1.copy()
-print(np.shape(M))
-print(M)
-d = np.array([[ 5.2921508098293293e+02, 0., 3.2894272028759258e+02],
-     [ 0.,5.2556393630057437e+02, 2.6748068171871557e+02],
-       [ 0., 0., 1. ]])
-print(np.shape(d))
-print(d)
 img4 = cv.warpPerspective(c_img1, M, (w,h))
-cv.imwrite('box_out.jpg',img4)
+cv.imwrite('out.png',img4)
 plt.imshow(img3, 'gray'),plt.show()
