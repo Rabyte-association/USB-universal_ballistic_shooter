@@ -7,10 +7,10 @@ def nothing(x):
     pass
 
 # Initializing the webcam feed.
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(3)
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'))
-cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH,1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 #cap.set(3,1280)
 #cap.set(4,720)
 
