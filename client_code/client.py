@@ -4,7 +4,9 @@ import socket
 from time import sleep
 import pickle
 import cv2
-
+import vision
+import numpy as np
+import math
 class toSend:
     HVB_ARM = 0  #przekaźnik zasilania hvb, zmiana chwilowa => start
     stop = 0        #stop ruchu silnikow chwytaka => X
@@ -24,6 +26,9 @@ class toSend:
 Data = toSend()
 pad=GamepadAccess.padObj()
 
+class passThroughClass:
+    dane= '0'
+passThrough = passThroughClass()
 
 MAX_VEL = 350       #w jednostkach hoverboarda
 NORM_VEL = 200
@@ -36,64 +41,131 @@ rightDeadZone = 0.2
 value = (-0.5,0.5)
 W, H = 1280, 720
 
-def Initialize():
-    def padding():
-        while True:
-            #pad.ShowDebug()
-            if pad.button_X == 0:                                   
-                if pad.button_B == 0:                               #B  - przycisk "nitro"
-                    if abs(pad.leftAxis.y * NORM_VEL) < MIN_VEL:
-                        Data.hvbSpeed = 0
-                    else:
-                        Data.hvbSpeed = pad.leftAxis.y *- NORM_VEL
-                    if abs(pad.leftAxis.x * NORM_DIR) < MIN_DIR:
-                        Data.hvbDir = 0
-                    else:
-                        Data.hvbDir = pad.leftAxis.x *NORM_DIR
+def sockets():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    print(f"Connecting to:")
+
+    sock.connect((str("USB.local"), int(8766)))
+
+    print("connected", sock.getsockname())
+    
+    while True:
+        pickled = passThrough.dane
+        #print(pickled)
+        sock.sendall(pickled)
+        sleep(0.05)
+
+
+def padding():
+    while True:
+        #pad.ShowDebug()
+        if pad.button_X == 0:                                   
+            if pad.button_B == 0:                               #B  - przycisk "nitro"
+                if abs(pad.leftAxis.y * NORM_VEL) < MIN_VEL:
+                    Data.hvbSpeed = 0
                 else:
-                    if abs(pad.leftAxis.y * MAX_VEL) < MIN_VEL:
-                        Data.hvbSpeed = 0
-                    else:
-                        Data.hvbSpeed = pad.leftAxis.y * -MAX_VEL
-                    if abs(pad.leftAxis.x * MAX_DIR) < MIN_DIR:
-                        Data.hvbDir = 0
-                    else:
-                        Data.hvbDir = pad.leftAxis.x *MAX_DIR
-                Data.HVB_ARM = pad.buttonStart                    
-                Data.led = pad.buttonSelect
-                Data.USB_AK = 1 if pad.button_TL and pad.button_TR == 1 else 0
-                Data.USB_W = pad.button_Y
-                Data.USB_L = 1 if pad.axisTR > 0.8 else 0
+                    Data.hvbSpeed = pad.leftAxis.y * NORM_VEL
+                if abs(pad.leftAxis.x * NORM_DIR) < MIN_DIR:
+                    Data.hvbDir = 0
+                else:
+                    Data.hvbDir = pad.leftAxis.x *NORM_DIR
+            else:
+                if abs(pad.leftAxis.y * MAX_VEL) < MIN_VEL:
+                    Data.hvbSpeed = 0
+                else:
+                    Data.hvbSpeed = pad.leftAxis.y * -MAX_VEL
+                if abs(pad.leftAxis.x * MAX_DIR) < MIN_DIR:
+                    Data.hvbDir = 0
+                else:
+                    Data.hvbDir = pad.leftAxis.x *MAX_DIR
+            Data.HVB_ARM = pad.buttonStart                    
+            Data.led = pad.buttonSelect
+            Data.USB_AK = 1 if pad.button_TL and pad.button_TR == 1 else 0
+            Data.USB_W = pad.button_Y
+            Data.USB_L = 1 if pad.axisTR > 0.8 else 0
+            
+            Data.stop = 0
+        else:   
+            Data.stop = 1
+            Data.hvbDir = 0
+            Data.hvbSpeed = 0
+            Data.HVB_ARM = 0
+            Data.led = 0
+            Data.USB_A = 0
+            Data.USB_B = 0
+            Data.USB_C = 0
+            Data.USB_AK = 0 
+            Data.USB_L = 0
+            Data.USB_W = 0
+        passThrough.dane = pickle.dumps(Data)
+def meth():
+    max=40
+    min = 10
+    print("dupa")
+    while not False:
+        if pad.button_A ==1: 
+            x= pad.rightAxis.x
+            y= pad.rightAxis.y
+            motorA = max
+            motorB=max
+            motorC=max
+            if x>0 and y>0:
+                motorB=min
+                print("topRight")
+            if x<0 and y>0:
+                motorC =min
+                print("topLeft")
+            if x<0 and y<0:
+                if y/x < 0.57735:
+                    motorC = min
+                    print("botLeftLeft")
+                else:
+                    motorA=min
+                    print("botLeftRight")
+            if x>0 and y<0:
+                if y/x<-0.55735:
+                    motorA=min
+                    print("botRightLeft")
+                else:
+                    motorB=min
+                    print("botLeftLeft")
+
+
+            Data.USB_A = motorA
+            Data.USB_B = motorB
+            Data.USB_C = motorC
+            #print(f"motorA:{motorA}, motorB:{motorB}, motorC:{motorC}")
+        else:
                 Data.USB_A = 0
                 Data.USB_B = 0
                 Data.USB_C = 0
-                Data.stop = 0
-            else:   
-                Data.stop = 1
-                Data.hvbDir = 0
-                Data.hvbSpeed = 0
-                Data.HVB_ARM = 0
-                Data.led = 0
-                Data.USB_A = 0
-                Data.USB_B = 0
-                Data.USB_C = 0
-                Data.USB_AK = 0 
-                Data.USB_L = 0
-                Data.USB_W = 0
-    def sockets():
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        print(f"Connecting to:")
+    # while not False:
+    #     x= pad.rightAxis.x
+    #     y= pad.rightAxis.y
+    #     if abs(x)<0.71 or abs(y)<0.71:
+    
+    #         bias = 30
+    #         ApreCodedX = 1
+    #         ApreCodedY = 2
+    #         BpreCodedX = 0.866
+    #         BpreCodedY = -0.5
+    #         CpreCodedX = -0.866
+    #         CpreCodedY = -0.5
+    #         d1 = math.sqrt(((ApreCodedX-x)**2)+((ApreCodedY-y)**2))
+    #         d2 = math.sqrt(((BpreCodedX-x)**2)+((BpreCodedY-y)**2))
+    #         d3 = math.sqrt(((CpreCodedX-x)**2)+((CpreCodedY-y)**2))
+    #         motorA = bias/d1
+    #         motorB= bias/d2
+    #         motorC= bias/d3
+    #         sleep(.1)
+    #         print(f"motorA:{motorA}, motorB:{motorB}, motorC:{motorC}")
+    #         if motorA and motorB and motorC < 50:
+    #             Data.USB_A = motorA
+    #             Data.USB_B = motorB
+    #             Data.USB_C = motorC
 
-        sock.connect((str("USB.local"), int(8765)))
+        
 
-        print("connected", sock.getsockname())
-        pickled = pickle.dumps(Data)
-        while True:
-            try:
-                sock.sendall(pickled)
-                sleep(0.01)
-            except:
-                print("dupa")
 
     def InitializeVideo():
         cap = cv2.VideoCapture("http://usb.local/stream")
@@ -110,15 +182,16 @@ def Initialize():
             if key == 27:
                 break
 
-    controllerThread = threading.Thread(target = pad.Initialize)
-    controllerThread.start()
-    socketsThread = threading.Thread(target=sockets)
-    socketsThread.start()
-    paddingThread = threading.Thread(target=padding)
-    paddingThread.start()
+controllerThread = threading.Thread(target = pad.Initialize)
+controllerThread.start()
+socketsThread = threading.Thread(target=sockets)
+socketsThread.start()
+paddingThread = threading.Thread(target=padding)
+paddingThread.start()
     video = threading.Thread(target=InitializeVideo)
     video.start()
-
+# visionThread = threading.Thread(target = vision.Initialize)
+# visionThread.start()
+methThread = threading.Thread(target=meth)
+methThread.start()
     
-    
-Initialize()
