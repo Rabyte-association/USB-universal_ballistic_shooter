@@ -1,5 +1,5 @@
 import threading
-import GamepadAccess as pad
+import GamepadAccess
 import socket 
 
 
@@ -20,6 +20,7 @@ class toSend:
         return
 
 Data = toSend()
+pad=GamepadAccess.padObj()
 
 
 MAX_VEL = 350       #w jednostkach hoverboarda
@@ -53,29 +54,21 @@ def Initialize():
                     Data.hvbDir = 0
                 else:
                     Data.hvbDir = pad.leftAxis.x *MAX_DIR
-            #print(Data.hvbSpeed)
-            Data.HVB_ARM = pad.buttonStart                      #przekaźnik 
+            Data.HVB_ARM = pad.buttonStart                    
             Data.led = pad.buttonSelect
-            Data.endstopOvr = pad.button_Y
-            Data.homing = pad.button_A
-            if abs(pad.rightAxis.x) > rightDeadZone:
-                Data.motorY = pad.rightAxis.x
-            else:
-                Data.motorY = 0
-            if abs(pad.rightAxis.y)>rightDeadZone:
-                    Data.motorZ = pad.rightAxis.y
-            else:
-                Data.motorZ = 0
-            Data.motorX1 = pad.axisTR - pad.button_TR        
-            Data.motorX2 = pad.axisTL - pad.button_TL           #jak się nacisnie oba na raz, nic się nie dzieje
-            
+            Data.USB_AK = 1 if pad.button_TL and pad.button_TR == 1 else 0
+            Data.USB_W = pad.button_Y
+            Data.USB_L = 1 if pad.axisTR > 0.8 else 0
         else:   
+            Data.stop = 1
             Data.hvbDir = 0
             Data.hvbSpeed = 0
-            Data.hvbDir = 0
             Data.HVB_ARM = 0
             Data.led = 0
-            Data.motorY = 0
-            Data.motorZ = 0
-            Data.motorX1 = 0
-            Data.motorX2 = 0 
+            Data.USB_A = 0
+            Data.USB_B = 0
+            Data.USB_C = 0
+            Data.USB_AK = 0 
+            Data.USB_L = 0
+            Data.USB_W = 0
+Initialize()

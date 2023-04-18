@@ -12,7 +12,7 @@ class Axis2:
         self.y = b
 
 
-class Pad():
+class padObj():
     MAX_TRIG_VAL =  math.pow(2, 10)
     MAX_JOY_VAL =  math.pow(2, 15)
 
