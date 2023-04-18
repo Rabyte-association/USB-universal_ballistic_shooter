@@ -3,6 +3,7 @@ import GamepadAccess
 import socket 
 from time import sleep
 import pickle
+import cv2
 
 class toSend:
     HVB_ARM = 0  #przekaźnik zasilania hvb, zmiana chwilowa => start
@@ -31,6 +32,9 @@ NORM_DIR = 100
 MAX_DIR = 200
 MIN_DIR = 20
 rightDeadZone = 0.2
+
+value = (-0.5,0.5)
+W, H = 1280, 720
 
 def Initialize():
     def padding():
@@ -86,11 +90,25 @@ def Initialize():
         pickled = pickle.dumps(Data)
         while True:
             try:
-                print(pickled)
                 sock.sendall(pickled)
                 sleep(0.01)
             except:
                 print("dupa")
+
+    def InitializeVideo():
+        cap = cv2.VideoCapture("http://usb.local/stream")
+        while True:
+            value = (pad.rightAxis.x, pad.rightAxis.y)
+            _, frame = cap.read()
+            new_value = (int((1+value[0])*(W/2)), int((1+value[1])*(H/2)))
+            mid_value = (int((W/2+new_value[0])/2), int((H/2+new_value[1])/2))
+            frame = cv2.arrowedLine(frame, mid_value, new_value, (0,255,0), int(2))
+            frame = cv2.line(frame, (int(W/2-10), int(H/2)), (int(W/2+10), int(H/2)), (255,255,255), int(2))
+            frame = cv2.line(frame, (int(W/2), int(H/2-10)), (int(W/2), int(H/2+10)), (255,255,255), int(2))
+            cv2.imshow('sas', frame)
+            key = cv2.waitKey(1)
+            if key == 27:
+                break
 
     controllerThread = threading.Thread(target = pad.Initialize)
     controllerThread.start()
@@ -98,6 +116,8 @@ def Initialize():
     socketsThread.start()
     paddingThread = threading.Thread(target=padding)
     paddingThread.start()
+    video = threading.Thread(target=InitializeVideo)
+    video.start()
 
     
     
