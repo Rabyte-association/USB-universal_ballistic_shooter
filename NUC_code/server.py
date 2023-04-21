@@ -66,7 +66,7 @@ def InitializeACM(): # xiao do jazdy, pico do strzalow
                 if decoded.USB_AK == 1 and old_decoded.USB_AK == 0:
                     serialpico.write(bytes('q', 'utf-8'))
                     #print('ssas')
-                if decoded.stop == 1 and old_decoded.stop == 0:
+                if decoded.stop == 1:
                     serialxiao.write(bytes('s', 'utf-8'))
                     serialpico.write(bytes('s', 'utf-8'))
                 if decoded.USB_W == 1 and old_decoded.USB_W == 0:
@@ -87,5 +87,5 @@ if __name__ == "__main__":
     acm = threading.Thread(target=InitializeACM)
     acm.start()
 
-    port = threading.Thread(target=InitializeSocket, args=[8765])
+    port = threading.Thread(target=InitializeSocket, args=[8766])
     port.start()
