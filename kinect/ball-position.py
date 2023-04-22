@@ -3,11 +3,9 @@ import imutils
 import numpy as np
 import random
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture("http://usb.local/stream")
 cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter.fourcc('M', 'J', 'P', 'G'))
-cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-overlay = np.zeros([720,1280,3], dtype=np.uint8)
+overlay = np.zeros([1080,1920,3], dtype=np.uint8)
 
 old_point = None
 while True:
@@ -17,8 +15,8 @@ while True:
     # orange
     #low = np.array([0, 169, 164])
     #high = np.array([35, 255, 255])
-    low = np.array([15, 120, 120])
-    high = np.array([35, 255, 255])
+    low = np.array([28, 80, 130])
+    high = np.array([41, 255, 255])
     mask = cv2.inRange(hsv_frame, low, high)
     cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
