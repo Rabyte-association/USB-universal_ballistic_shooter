@@ -65,14 +65,34 @@ PID motor1_PID(&actual_speed1, &written_speed1, &setpoint_speed1, Kp, Ki, Kd, DI
 PID motor2_PID(&actual_speed2, &written_speed2, &setpoint_speed2, Kp, Ki, Kd, DIRECT);
 bool use_PID = false;
 
+long last_poulse0 = 100;
+long courrent_poulse0;
 void tacho0() {
-  counter0 += 1;
+  courrent_poulse0 = micros();
+  if ((courrent_poulse0 - last_poulse0) >= 300) {
+    counter0 += 1;
+  }
+  last_poulse0 = courrent_poulse0;
 }
+
+long last_poulse1 = 100;
+long courrent_poulse1;
 void tacho1() {
-  counter1 += 1;
+  courrent_poulse1 = micros();
+  if ((courrent_poulse1 - last_poulse1) >= 300) {
+    counter1 += 1;
+  }
+  last_poulse1 = courrent_poulse1;
 }
+
+long last_poulse2 = 100;
+long courrent_poulse2;
 void tacho2() {
-  counter2 += 1;
+  courrent_poulse2 = micros();
+  if ((courrent_poulse2 - last_poulse2) >= 300) {
+    counter2 += 1;
+  }
+  last_poulse2 = courrent_poulse2;
 }
 
 void setup() {
@@ -105,11 +125,12 @@ void setup1() {
 
 void loop() {
   current_time = millis();
-  delta_t_s = (current_time - prev_time) / 1000;
-  actual_speed0 = (counter0 / delta_t_s) * 60;
-  actual_speed1 = (counter1 / delta_t_s) * 60;
-  actual_speed2 = (counter2 / delta_t_s) * 60;
-  //  Serial.println(counter0);
+  delta_t_s = (current_time - prev_time);
+
+  actual_speed0 = (counter0 * 7500 / delta_t_s);
+  actual_speed1 = (counter1 * 7500 / delta_t_s);
+  actual_speed2 = (counter2 * 7500 / delta_t_s);
+
   counter0 = 0;
   counter1 = 0;
   counter2 = 0;
@@ -117,18 +138,6 @@ void loop() {
 
   print_debug();
 
-  if (singleShot_flag > 0 && millis() > openTime + 180) {
-    singleShot_flag--;
-    if (singleShot_flag == 1) {
-      feedtop.write(closedtop);
-      openTime = millis();
-      feedbot.write(openedbottom);
-    }
-    else {
-      feedbot.write(closedbottom);
-    }
-
-  }
   if (use_PID) {
     motor0_PID.Compute();
     motor1_PID.Compute();
@@ -144,7 +153,7 @@ void loop() {
   motor2_writeRPM(written_speed2);
   fan_writeRPM(fan_speed);
 
-  delay(5);
+  delay(20);
 }
 
 void loop1() {
@@ -202,5 +211,17 @@ void loop1() {
       openTime = millis();
       feedtop.write(openedtop);
     }
+  }
+  if (singleShot_flag > 0 && millis() > openTime + 180) {
+    singleShot_flag--;
+    if (singleShot_flag == 1) {
+      feedtop.write(closedtop);
+      openTime = millis();
+      feedbot.write(openedbottom);
+    }
+    else {
+      feedbot.write(closedbottom);
+    }
+
   }
 }
