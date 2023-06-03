@@ -21,7 +21,7 @@ const byte servoTop_pin = 2;
 const byte servoBot_pin = 3;
 const byte fan_pin = 1;
 
-const byte closedtop = 125;
+const byte closedtop = 165;
 const byte openedtop = 100;
 const byte closedbottom = 160;
 const byte openedbottom = 100;
@@ -110,9 +110,14 @@ void setup() {
   motor0.attach(motor0_pin);
   motor1.attach(motor1_pin);
   motor2.attach(motor2_pin);
+  motor0.write(90);
+  motor1.write(0);
+  motor2.write(0);
   fan.attach(fan_pin);
   feedtop.attach(servoTop_pin);
   feedbot.attach(servoBot_pin);
+  feedtop.write(closedtop);
+  feedtop.write(closedbottom);
 
   motor0_PID.SetMode(AUTOMATIC);
   motor1_PID.SetMode(AUTOMATIC);
@@ -163,6 +168,7 @@ void loop1() {
       setpoint_speed0 = 0;
       setpoint_speed1 = 0;
       setpoint_speed2 = 0;
+      fan_speed = 0;
     }
     if (data == 'f') {
       setpoint_speed0 = 180;
@@ -183,7 +189,7 @@ void loop1() {
       setpoint_speed1 = Serial.parseInt();
     }
     if (data == 'c') {
-      setpoint_speed0 = Serial.parseInt();
+      setpoint_speed2 = Serial.parseInt();
     }
     if (data == 'w') {
       fan_speed = Serial.parseInt();
@@ -207,7 +213,7 @@ void loop1() {
       feedbot.write(closedbottom);
     }
     if (data == 'l') {
-      singleShot_flag = 2; feedbot.write(openedbottom);
+      singleShot_flag = 3; 
       openTime = millis();
       feedtop.write(openedtop);
     }
