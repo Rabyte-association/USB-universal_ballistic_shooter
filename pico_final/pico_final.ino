@@ -21,7 +21,7 @@ const byte servoTop_pin = 2;
 const byte servoBot_pin = 3;
 const byte fan_pin = 1;
 
-const byte closedtop = 165;
+const byte closedtop = 170;
 const byte openedtop = 100;
 const byte closedbottom = 160;
 const byte openedbottom = 100;
@@ -34,10 +34,9 @@ uint32_t counter1 = 0;
 uint32_t counter2 = 0;
 
 int fan_speed = 0;
-int singleShot_flag = 2;
-uint32_t openTime = 0;
-uint32_t closedTime = 0;
-
+int singleShot_flag = 1;
+uint32_t shootTime = 0;
+//uint32_t closedTime = 0;
 
 
 double actual_speed0;
@@ -122,6 +121,9 @@ void setup() {
   motor0_PID.SetMode(AUTOMATIC);
   motor1_PID.SetMode(AUTOMATIC);
   motor2_PID.SetMode(AUTOMATIC);
+  
+  feedbot.write(openedbottom);
+  feedtop.write(closedtop);
 }
 
 void setup1() {
@@ -202,32 +204,30 @@ void loop1() {
       use_PID = false;
       Serial.println("PID disabled");
     }
-    if (data == 't') {
-      feedtop.write(openedtop);
-      delay(200);
-      feedtop.write(closedtop);
-    }
-    if (data == 'y') {
-      feedbot.write(openedbottom);
-      delay(250);
-      feedbot.write(closedbottom);
-    }
+    
     if (data == 'l') {
-      singleShot_flag = 3; 
-      openTime = millis();
-      feedtop.write(openedtop);
+      singleShot_flag = 1;
     }
   }
-  if (singleShot_flag > 0 && millis() > openTime + 180) {
-    singleShot_flag--;
-    if (singleShot_flag == 1) {
-      feedtop.write(closedtop);
-      openTime = millis();
-      feedbot.write(openedbottom);
-    }
-    else {
-      feedbot.write(closedbottom);
-    }
 
+  if (singleShot_flag == 1) {
+    feedtop.write(openedtop);
+    shootTime = millis();
+    singleShot_flag = 2;
+  }
+  if(singleShot_flag == 2 && (millis() - shootTime ) >= 200){
+    feedtop.write(closedtop);
+    shootTime = millis();
+    singleShot_flag = 3;
+  }
+  if(singleShot_flag == 3 && (millis() - shootTime ) >= 200){
+    feedbot.write(openedbottom);
+    shootTime = millis();
+    singleShot_flag = 4;
+  }
+   if(singleShot_flag == 4 && (millis() - shootTime ) >= 100){
+    feedbot.write(closedbottom);
+    shootTime = millis();
+    singleShot_flag = 0;
   }
 }
