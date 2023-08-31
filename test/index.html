@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
+  .d-pad {
+    position: relative;
+    width: 720px;
+    height: 405px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
+    justify-items: center;
+    align-items: center;
+  }
+  .button {
+    width: 100px;
+    height: 100px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #up { grid-area: 1 / 2 / 2 / 3; }
+  #left { grid-area: 2 / 1 / 3 / 2; }
+  #right { grid-area: 2 / 3 / 3 / 4; }
+  #down { grid-area: 3 / 2 / 4 / 3; }
+  .video-container {
+    grid-area: 2 / 2 / 3 / 3;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+<title>D-Pad Buttons with Video</title>
+</head>
+<body>
+<div class="d-pad">
+  <button class="button" id="up">Up</button>
+  <button class="button" id="left">Left</button>
+  <button class="button" id="right">Right</button>
+  <button class="button" id="down">Down</button>
+  <div class="video-container">
+    <video controls>
+      <source src="https://cdn.discordapp.com/attachments/948618667002855484/1143888911161098271/1641385524730.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
+<script>
+  const buttons = document.querySelectorAll('.button');
+
+  buttons.forEach(button => {
+    button.addEventListener("click", function(){
+            const buttonId = button.id;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/"+buttonId, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    alert(xhr.responseText);
+                }
+            };
+            xhr.send();        })}) 
+
+</script>
+</body>
+</html>

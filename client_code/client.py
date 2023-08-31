@@ -4,7 +4,7 @@ import socket
 from time import sleep
 import pickle
 import cv2
-import vision
+
 import numpy as np
 import math
 class toSend:
@@ -18,6 +18,7 @@ class toSend:
     USB_C =0
     USB_L =0
     USB_AK = 0
+    USB_AUT = 0
     USB_W =0
     led = 0             #zmiana stanu ledow => Select
     
@@ -32,27 +33,27 @@ class passThroughClass:
 passThrough = passThroughClass()
 
 MAX_VEL = 350       #w jednostkach hoverboarda
-NORM_VEL = 200
+NORM_VEL = 1000
 MIN_VEL = 40
-NORM_DIR = 100
-MAX_DIR = 200
+NORM_DIR = 200
+MAX_DIR = 150
 MIN_DIR = 20
 rightDeadZone = 0.2
 
 value = (-0.5,0.5)
-W, H = 1280, 720
+W, H = 1920, 1080
 
 def sockets():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     print(f"Connecting to:")
 
-    sock.connect((str("USB.local"), int(8765)))
+    sock.connect((str("USB.local"), int(8766)))
 
     print("connected", sock.getsockname())
     
     while True:
         pickled = passThrough.dane
-        #print(pickled)
+       # print(pickled)
         sock.sendall(pickled)
         sleep(0.05)
 
@@ -93,12 +94,14 @@ def padding():
             #     Data.USB_B = 30
             #     Data.USB_C = 30
             Data.stop = 0
+            USB_AUT = 0
         else:   
             print("Stop")
             Data.stop = 1
             Data.hvbDir = 0
             Data.hvbSpeed = 0
             Data.HVB_ARM = 0
+            USB_AUT = 0
             Data.led = 0
             Data.USB_A = 0
             Data.USB_B = 0
@@ -107,6 +110,8 @@ def padding():
             Data.USB_L = 0
             Data.USB_W = 0
         passThrough.dane = pickle.dumps(Data)
+        sleep(0.05)
+
 def meth():
     max=40
     min = 10
@@ -151,7 +156,7 @@ def meth():
         y= pad.rightAxis.y
         #if abs(x)>0.15 and abs(y)>0.15:
         
-        bias = 30
+        bias = 50
         ApreCodedX = 0
         ApreCodedY = 2
         BpreCodedX = -1.732
@@ -165,7 +170,7 @@ def meth():
         motorB= bias/d2
         motorC= bias/d3
         sleep(.1)
-        print(f"motorA:{motorA}, motorB:{motorB}, motorC:{motorC}")
+     #   print(f"motorA:{motorA}, motorB:{motorB}, motorC:{motorC}")
         if pad.axisTL >0.5:
             if motorA and motorB and motorC < 50:
                 Data.USB_A = motorA
@@ -175,6 +180,7 @@ def meth():
             Data.USB_A = 0
             Data.USB_B = 0
             Data.USB_C = 0
+        sleep(0.05)
 
         
 
@@ -201,8 +207,8 @@ socketsThread = threading.Thread(target=sockets)
 socketsThread.start()
 paddingThread = threading.Thread(target=padding)
 paddingThread.start()
-video = threading.Thread(target=InitializeVideo)
-video.start()
+# video = threading.Thread(target=InitializeVideo)
+# video.start()
 methThread = threading.Thread(target=meth)
 methThread.start()
-    
+

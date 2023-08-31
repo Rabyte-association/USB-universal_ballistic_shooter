@@ -3,9 +3,15 @@ void print_debug() {
   Serial.print(", ");
   Serial.print(setpoint_speed1);
   Serial.print(", ");
-  Serial.println(setpoint_speed2);
+  Serial.print(setpoint_speed2);
   Serial.print(", ");
-  Serial.println(fan_speed);
+  Serial.print(actual_speed0);
+  Serial.print(", ");
+  Serial.print(actual_speed1);
+  Serial.print(", ");
+  Serial.println(actual_speed2);
+  //  Serial.print(", ");
+  //  Serial.println(fan_speed);
 }
 void fan_writeRPM(int percent) {
   int out_deg = map(percent, 0, 100, 0, 180);
@@ -30,11 +36,4 @@ void motor2_writeRPM(double rpm) {
   //  if(out_deg > 180) out_deg = 180;
   int out_deg = rpm;
   motor2.write(out_deg);
-}
-
-void open_top() {
-
-}
-void open_bot() {
-
 }
